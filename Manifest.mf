@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: .
+Rsrc-Main-Class: com.yc.clearmine.StartGame
+Main-Class: com.yc.clearmine.StartGame
