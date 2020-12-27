@@ -224,7 +224,7 @@ public class ClearMineUI extends JFrame {
 		mineMap = clearMine.getMineMap();
 		this.time = 0;
 		this.clearMineCount = clearMine.getMineCount();
-		
+		label_1.setText(" 0" + clearMineCount + " ");
 		// 重新生产地图
 		this.setSize(col * size + 8, row * size + 120);
 		this.setLocationRelativeTo(null); // 重新居中显示
@@ -241,6 +241,7 @@ public class ClearMineUI extends JFrame {
 		mineMap = clearMine.getMineMap(); // 重新获取地图，此时会重新布雷
 		isBomb = false;
 		this.clearMineCount = clearMine.getMineCount();
+		label_1.setText(" 0" + clearMineCount + " ");
 		this.time = 0;
 		label_smile.setIcon(new ImageIcon(ClearMineUI.class.getResource("/image/smile.png")));
 		repaint(); // 重绘界面

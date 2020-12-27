@@ -75,7 +75,7 @@ public class MyMouseListener extends MouseAdapter{
 					return;
 				}
 				game.mineMap[x][y] += 0b00000100; // 则插旗
-				game.label_1.setText(" 0" + (game.clearMineCount --) + " ");
+				game.label_1.setText(" 0" + (-- game.clearMineCount) + " ");
 			}
 		} 
 
