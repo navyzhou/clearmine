@@ -359,6 +359,7 @@ public class MyMouseListener extends MouseAdapter{
 		if (clearMineUI.timer != null) {
 			clearMineUI.timer.cancel();
 		}
+		
 		int index = 0;
 		if (flag == 1) { // 说明是炸死的
 			PlayMusicUtil.playOver();
