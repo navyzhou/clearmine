@@ -1,4 +1,4 @@
-package com.yc;
+package com.yc.clearmine;
 
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
@@ -6,6 +6,8 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+
+import com.yc.clearmine.util.PlayMusicUtil;
 
 /**
  * 事件监听
@@ -29,7 +31,7 @@ public class MyMouseListener extends MouseAdapter{
 			clearMineUI.timeTask();
 			clearMineUI.start = false;
 		}
-		
+		PlayMusicUtil.playStart();
 		int x = e.getY() / size;
 		int y = e.getX() / size; 
 		
@@ -355,9 +357,11 @@ public class MyMouseListener extends MouseAdapter{
 	private void gameOver(int flag) {
 		int index = 0;
 		if (flag == 1) { // 说明是炸死的
+			PlayMusicUtil.playOver();
 			clearMineUI.label_2.setIcon(new ImageIcon(ClearMineUI.class.getResource("/images/cry.png")));
 			index = JOptionPane.showConfirmDialog(clearMineUI, "对不起，您已经被炸死了...\n是否再来一局???", "游戏结束", JOptionPane.YES_NO_OPTION);
 		} else { // 说明是正常结束
+			PlayMusicUtil.playWin();
 			index = JOptionPane.showConfirmDialog(clearMineUI, "恭喜您，赢了...\n是否再来一局???", "游戏结束", JOptionPane.YES_NO_OPTION);
 		}
 		

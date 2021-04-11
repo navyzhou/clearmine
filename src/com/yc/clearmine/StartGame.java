@@ -1,4 +1,6 @@
-package com.yc;
+package com.yc.clearmine;
+
+import com.yc.clearmine.util.YcUtil;
 
 /**
  * 启动游戏的方法
@@ -11,5 +13,6 @@ public class StartGame {
 	public static void main(String[] args) {
 		ClearMineUI window = new ClearMineUI();
 		window.setVisible(true);
+		YcUtil.tary(window);
 	}
 }
