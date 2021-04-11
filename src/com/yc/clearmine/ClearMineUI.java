@@ -209,6 +209,7 @@ public class ClearMineUI extends JFrame {
 		mineCount = clearMineCount;
 		time = 0; // 重新开始计数
 		start = true; // 重置游戏开始标识
+		
 		if (timer != null) {
 			timer.cancel();
 		}
