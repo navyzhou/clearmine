@@ -209,7 +209,9 @@ public class ClearMineUI extends JFrame {
 		mineCount = clearMineCount;
 		time = 0; // 重新开始计数
 		start = true; // 重置游戏开始标识
-		timer.cancel();
+		if (timer != null) {
+			timer.cancel();
+		}
 
 		label_1.setText(" 0" + clearMineCount + " "); // 重置剩余雷数
 		label_3.setText(" 00:00 "); // 重新开始计时
@@ -233,7 +235,9 @@ public class ClearMineUI extends JFrame {
 		mineCount = clearMineCount;
 		time = 0; // 重新开始计数
 		start = true; // 重置游戏开始标识
-		timer.cancel();
+		if (timer != null) {
+			timer.cancel();
+		}
 		
 		label_1.setText(" 0" + clearMineCount + " "); // 重置剩余雷数的显示
 		label_3.setText(" 00:00 "); // 重新开始计时
