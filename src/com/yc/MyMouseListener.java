@@ -7,223 +7,252 @@ import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+/**
+ * 事件监听
+ * 源辰信息
+ * @author navy
+ * @date 2021年4月11日
+ * Email haijunzhou@hnit.edu.cn
+ */
 public class MyMouseListener extends MouseAdapter{
-	private int size = 20;
-	private ClearMineUI game;
-
-	public MyMouseListener(int size, ClearMineUI game) {
+	int size = 40;
+	ClearMineUI clearMineUI;
+	
+	public MyMouseListener(int size, ClearMineUI clearMineUI) {
 		this.size = size;
-		this.game = game;
+		this.clearMineUI = clearMineUI;
 	}
-
+	
 	@Override
-	public void mouseClicked(MouseEvent e) {
-		int x = e.getY() / size;
-		int y = e.getX() / size;
+	public void mouseClicked(MouseEvent e) { // 当在鼠标在界面上点击时，会自动运行这个方法
+		if (clearMineUI.start) {
+			clearMineUI.timeTask();
+			clearMineUI.start = false;
+		}
 		
-		if (x >= game.row || y >= game.col || x < 0 || y < 0) { // 说明用户点击的范围不是棋盘
+		int x = e.getY() / size;
+		int y = e.getX() / size; 
+		
+		// 说明越界了
+		if (x >= clearMineUI.row || y >= clearMineUI.col || x < 0 || y < 0) {
 			return;
 		}
-
-		//showMap();
-
-		if (e.getClickCount() == 2) {
-			// 弹开周围的八个位置，如果是雷不打开，如果是空白继续打开
-			int count = (game.mineMap[x][y] >>> 3); // 获取双击的这个位置的地图数
-			if (count == 0) { // 说你是空白区域
+		
+		int value = clearMineUI.mineMap[x][y]; // 获取用户点击的这个位置的值
+		
+		if (e.getClickCount() == 2) { // 说明是双击
+			int count = value >>> 3; // 得到数量
+			
+			if (count == 0) { // 说明这个地方是空白
 				return;
 			}
 			
 			int total = getMineCount(x, y);
-			
-			if (total == -1) { // 说明插旗有错误的情况，则不管
-				return;
-			}
-			
-			if (total != count) { // 说明周围的雷没有被成功标识
-				return;
-			}
-			
-			// 否则，需要判断这个位置的周围8个是否打开，如果没有则打开(插旗的不管)，如果是空白，则继续弹开
-			openRound(x, y);
-			
-		} else {
-			if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {  // 左击
-				// 如果这个位置已经打开，则不管
-				if ((game.mineMap[x][y] & 0b00000110) == 0b00000010) { // 说明是打开了
-					return; // 直接返回
-				}
-
-				// 先判断有没有插旗，如果有插旗，则取消插旗
-				if ((game.mineMap[x][y] & 0b00000110)== 0b00000100) { // 说明此处已经插旗
-					game.mineMap[x][y] = game.mineMap[x][y] & 0b01111001; // 则去掉旗子
-				} else if ((game.mineMap[x][y] & 0b00000001)== 0b00000001) { // 说明是地雷
-					game.isBomb = true; // 说明炸了
-				} else {// 那么就要判断当前位置是不是空白，如果是则要弹开
-					// game.mineMap[x][y] += 0b10;
-					openWhiteOption(x, y);
-				}
-
-			} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
-				if ((game.mineMap[x][y] & 0b00000110) == 0b00000010) { // 说明是打开了
-					return; // 直接返回
-				}
-				
-				// 右击第一次插旗  第二次变成? 第三次取消。如果此处已经插旗则点击无效，如果是?则可以直接打开
-				// 说明要插旗
-				if ((game.mineMap[x][y] & 0b00000110)== 0b00000100) { // 说明此处已经插旗，则不管
+			if (total == -1) { // 说明是中间炸了
+				clearMineUI.isBomb = true;
+				// clearMineUI.repaint();
+				// return;
+			} else {
+				if (total != count) { // 如果插旗的数量跟实际雷数不相等
 					return;
 				}
-				game.mineMap[x][y] += 0b00000100; // 则插旗
-				game.label_1.setText(" 0" + (-- game.clearMineCount) + " ");
+				
+				// 如果相等，则判断周围8个位置是否已经打开
+				openRound(x, y); // 打开这个位置的周围
 			}
-		} 
-
-		game.repaint(); // 重绘
+		} else { // 说明是单机
+			if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) { // 说明是左击
+				// 如果这个位置已经打开，则不管
+				if ((value & 0b110) == 0b010) { // 说明已经打开
+					return;
+				}
+				
+				// 判断这个位置有没有插旗，如果有插旗，则要取消插旗
+				if ((value & 0b110) == 0b100) { // 说明已经插旗     10  00
+					clearMineUI.mineMap[x][y] = value & 0b11111001;
+				} else if ((value & 0b1) == 0b1) { // 说明这个地方是地雷
+					clearMineUI.isBomb = true; // 说明炸啦
+				} else { // 要判断这个地方是否是空白，如果是空白，则要向周围弹开，如果不是，则显示   00 01
+					// clearMineUI.mineMap[x][y] += 0b10;
+					openWhiteOption(x, y);
+				}
+			} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) { // 说明是右击
+				// 如果已经打开，则不能右击
+				if ((value & 0b110) == 0b010) {
+					return;
+				}
+				
+				// 如果没有打开，第一次是插旗，第二次是?，第三次是取消
+				if ((value & 0b110) == 0b100) { // 说明此处已经插旗，那么变成?  100 -> 110  010
+					clearMineUI.mineMap[x][y] += 0b010; // 变成?
+				} else if ((value & 0b110) == 0b110) { // 说明此处是?，则取消  // 110 -> 000
+					clearMineUI.mineMap[x][y] = value & 0b11111001;
+				} else {
+					// 否则就是插旗
+					if (clearMineUI.mineCount <= 0) {
+						return;
+					}
+					clearMineUI.mineMap[x][y] += 0b100; // 00 -> 10
+				}
+			}
+		}
+		// 重绘地图
+		clearMineUI.repaint();
 		
-		if (game.isBomb) {
+		if (clearMineUI.isBomb) { // 如果炸了
 			gameOver(1);
-		} else if(isGameOver()){
+		} else if (checkGameOver()){ // 如果游戏正常结束
 			gameOver(2);
 		}
 	}
-
+	
 	/**
-	 * 打开空白
+	 * 用来计算周围成功标识的雷的数量，即成功插旗的数量
 	 * @param x
 	 * @param y
-	 */
-	private void openWhiteOption(int x, int y) {
-		int state = game.mineMap[x][y]; // 获取当前位置的值
-
-		//            有雷                                                                      已经打开                                                                          已经插旗
-		if ((state & 0b1) == 0b1 || (state & 0b110) == 0b10 || (state & 0b110) == 0b100) {
-			return;
-		}
-
-		game.mineMap[x][y] += 0b10; // 当前这个位置需要打开
-		if ((state >>> 3) == 0) { // 说明当前是空白，则周围要弹开
-			if (x - 1 >= 0) { // 向上
-				openWhiteOption(x - 1, y); // 正上方
-
-				if (y - 1 >= 0) { // 左上方
-					openWhiteOption(x - 1, y - 1);
-				}
-
-				if (y + 1 < game.col) { // 右上方
-					openWhiteOption(x - 1, y + 1);
-				}
-			}
-
-			if (x + 1 < game.row) { // 向下
-				openWhiteOption(x + 1, y); // 正下方
-
-				if (y - 1 >= 0) { // 左下方
-					openWhiteOption(x + 1, y - 1);
-				}
-
-				if (y + 1 < game.col) { // 右下方
-					openWhiteOption(x + 1, y + 1);
-				}
-			}
-
-			if (y - 1 >= 0) { // 左边
-				openWhiteOption(x, y - 1);
-			}
-
-			if (y + 1 < game.col) { // 右边
-				openWhiteOption(x, y + 1);
-			}
-		}
-	}
-
-	/**
-	 * 统计点击位置周围的插旗是否已经完成，即周围的雷正确的找出了多少个
-	 * @param x
-	 * @param y
-	 * @return 如果返回-1，说明插旗有误，否则返回插旗正确的数量
+	 * @return
 	 */
 	private int getMineCount(int x, int y) {
 		int total = 0;
 		int temp = 0;
 		
 		if (x - 1 >= 0) { // 向上
-			// 判断这个位置有没有插旗
 			temp = checkFlag(x - 1, y);
-			if ( temp == -1) {
+			if (temp == -1) {
 				return -1;
 			}
 			total += temp;
 			
-			if (y - 1 >= 0) { // 左上方
+			if (y - 1 >= 0) { // 左上角
 				temp = checkFlag(x - 1, y - 1);
-				if ( temp == -1) {
+				if (temp == -1) {
 					return -1;
 				}
 				total += temp;
 			}
-
-			if (y + 1 < game.col) { // 右上方
+			
+			if (y + 1 < clearMineUI.col) { // 右上角
 				temp = checkFlag(x - 1, y + 1);
-				if ( temp == -1) {
+				if (temp == -1) {
 					return -1;
 				}
 				total += temp;
 			}
 		}
-
-		if (x + 1 < game.row) { // 向下
+		
+		if (x + 1 < clearMineUI.row ) { // 向下
 			temp = checkFlag(x + 1, y);
-			if ( temp == -1) {
+			if (temp == -1) {
 				return -1;
 			}
 			total += temp;
-
-			if (y - 1 >= 0) { // 左下方
+			
+			if (y - 1 >= 0) { // 左上角
 				temp = checkFlag(x + 1, y - 1);
-				if ( temp == -1) {
+				if (temp == -1) {
 					return -1;
 				}
 				total += temp;
 			}
-
-			if (y + 1 < game.col) { // 右下方
+			
+			if (y + 1 < clearMineUI.col) { // 右上角
 				temp = checkFlag(x + 1, y + 1);
-				if ( temp == -1) {
+				if (temp == -1) {
 					return -1;
 				}
 				total += temp;
 			}
 		}
-
+		
 		if (y - 1 >= 0) { // 左边
 			temp = checkFlag(x, y - 1);
-			if ( temp == -1) {
+			if (temp == -1) {
 				return -1;
 			}
 			total += temp;
 		}
-
-		if (y + 1 < game.col) { // 右边
+		
+		if (y + 1 < clearMineUI.col) { // 右边
 			temp = checkFlag(x, y + 1);
-			if ( temp == -1) {
+			if (temp == -1) {
 				return -1;
 			}
 			total += temp;
 		}
+		
 		return total;
 	}
 	
 	/**
-	 * 检查对应位置是否已经插旗正确
+	 * 双击打开周围的方法
 	 * @param x
 	 * @param y
-	 * @return 如果是0说明没有插旗，如果是1说明成功插旗，如果是-1说明插旗错误
+	 */
+	private void openRound(int x, int y) {
+		if (x - 1 >= 0) {
+			openPosition(x - 1, y); // 正上方
+			
+			if (y - 1 >= 0) {
+				openPosition(x - 1, y - 1);
+			}
+			
+			if (y + 1 < clearMineUI.col) {
+				openPosition(x - 1, y + 1);
+			}
+		}
+		
+		if (x + 1 < clearMineUI.row) {
+			openPosition(x + 1, y);
+			
+			if (y - 1 >= 0) {
+				openPosition(x + 1, y - 1);
+			}
+			
+			if (y + 1 < clearMineUI.col) {
+				openPosition(x + 1, y + 1);
+			}
+		}
+		
+		if (y - 1 >= 0) {
+			openPosition(x, y - 1);
+		}
+		
+		if (y + 1 < clearMineUI.col) {
+			openPosition(x, y + 1);
+		}
+	}
+	
+	/**
+	 * 打开指定位置的方法
+	 * @param x
+	 * @param y
+	 */
+	private void openPosition(int x, int y) {
+		int state = clearMineUI.mineMap[x][y];
+		
+		// 有雷                                                                     插旗                                                                      已经打开
+		if ((state & 0b1) == 1 || (state & 0b110) == 0b100 || (state & 0b110) == 0b010) {
+			return;
+		}
+		
+		if ((state >>>3) == 0) {
+			openWhiteOption(x, y);
+			return;
+		}
+		
+		clearMineUI.mineMap[x][y] += 0b10; // 打开当前位置
+	}
+	
+	/**
+	 * 检查这个位置是否正确插旗
+	 * @param x
+	 * @param y
+	 * @return
 	 */
 	private int checkFlag(int x, int y) {
-		if ((game.mineMap[x][y] & 0b00000110) == 0b00000100) { // 说明已经插旗
-			// 这个位置有雷
-			if ((game.mineMap[x][y] & 0b1) == 1) { // 说明有雷，即插旗正确
+		// 说明这个地方有雷                                                                                                              
+		if ((clearMineUI.mineMap[x][y] & 0b110) == 0b100) { 
+			if ((clearMineUI.mineMap[x][y] & 0b1) == 0b1) { // 说明这个地方已经插旗
 				return 1;
 			} else {
 				return -1;
@@ -233,99 +262,110 @@ public class MyMouseListener extends MouseAdapter{
 	}
 	
 	/**
-	 * 打开周围的8个位置
-	 * @param x
-	 * @param y
+	 * 空白判断及打开
 	 */
-	private void openRound(int x, int y) {
-		if (x - 1 >= 0) { // 向上
-			openPosition(x - 1, y); // 正上方
-
-			if (y - 1 >= 0) { // 左上方
-				openPosition(x - 1, y - 1);
-			}
-
-			if (y + 1 < game.col) { // 右上方
-				openPosition(x - 1, y + 1);
-			}
-		}
-
-		if (x + 1 < game.row) { // 向下
-			openPosition(x + 1, y); // 正下方
-
-			if (y - 1 >= 0) { // 左下方
-				openPosition(x + 1, y - 1);
-			}
-
-			if (y + 1 < game.col) { // 右下方
-				openPosition(x + 1, y + 1);
-			}
-		}
-
-		if (y - 1 >= 0) { // 左边
-			openPosition(x, y - 1);
-		}
-
-		if (y + 1 < game.col) { // 右边
-			openPosition(x, y + 1);
-		}
-	}
-	
-	private void openPosition(int x, int y) {
-		int state = game.mineMap[x][y]; // 获取当前位置的值
+	private void openWhiteOption(int x, int y) {
+		int state = clearMineUI.mineMap[x][y]; // 获取用户点击的这个位置的值
 		
-		//  有雷                                                                               插旗                                                                                         已经打开
-		if ((state & 0b1) == 0b1 || (state & 0b110) == 0b10 || (state & 0b110) == 0b100) {
+		// 如果这个地方是雷或者已经插旗或者已经打开，则不往下走
+		if ((state & 0b1) == 1 || (state & 0b110) == 0b100 || (state & 0b110) == 0b010) {
 			return;
 		}
 		
-		if ((state >>> 3) == 0) { // 说明当前是空白，则周围要弹开
-			openWhiteOption(x, y);
-			return;
-		}
+		// 说明当前这位置是空白或者数字，则可以打开
+		clearMineUI.mineMap[x][y] += 0b010;  // 0b000  + 0b010 = 0b010
 		
-		game.mineMap[x][y] += 0b10; // 当前这个位置需要打开
+		// 如果当前位置是空白，则需要继续判断周围8个位置是否空白或数字，如果是空白则要继续打开，如果是数字打开就行
+		if ((state >>> 3) == 0) { // 说明此处是空白，则需要继续打开周围8个位置
+			// 向上
+			if (x - 1 >= 0) { // 说明可以向上走
+				openWhiteOption(x - 1, y);
+				
+				if (y - 1 >= 0) { // 可以往左上角
+					openWhiteOption(x - 1, y - 1);
+				}
+				
+				if (y + 1 < clearMineUI.col) { // 说明可以往右上角
+					openWhiteOption(x - 1, y + 1);
+				}
+			}
+			
+			// 向下
+			if (x + 1 < clearMineUI.row) { // 说明可以往下走
+				openWhiteOption(x + 1, y);
+				
+				if (y - 1 >= 0) { // 说明能往左下角走
+					openWhiteOption(x + 1, y - 1);
+				}
+				
+				if (y + 1 < clearMineUI.col) { // 说明能往右下角走
+					openWhiteOption(x + 1, y + 1);
+				}
+			}
+			
+			// 向左
+			if (y - 1 >= 0) {
+				openWhiteOption(x, y - 1);
+			}
+			
+			// 向右
+			if (y + 1 < clearMineUI.col) {
+				openWhiteOption(x, y + 1);
+			}
+		}
 	}
 	
 	/**
-	 * 游戏结束
+	 * 统计插旗的数量
+	 */
+	private void totalFlag() {
+		int count = 0;
+		for (int[] arr : clearMineUI.mineMap) {
+			for (int num : arr) {
+				if ((num & 0b110) == 0b100) { // 说这个地方已经插旗了
+					++ count;
+				}
+			}
+		}
+		clearMineUI.mineCount = clearMineUI.clearMineCount - count;
+		clearMineUI.label_1.setText(" 0" + clearMineUI.mineCount + " ");
+	}
+	
+	/**
+	 * 判断游戏结束的方法
+	 * 除雷以外，其它的所有都已经打开
+	 * @return
+	 */
+	private boolean checkGameOver() {
+		totalFlag(); // 先统计插旗数
+		for (int[] arr : clearMineUI.mineMap) {
+			for (int num : arr) {
+				if ((num & 0b1) == 0b0 && (num & 0b110) != 0b010) { // 说明这个地方不是雷并且你的状态不是  01，即状态不是打开
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * 游戏结束的方法
 	 * @param flag
 	 */
 	private void gameOver(int flag) {
 		int index = 0;
 		if (flag == 1) { // 说明是炸死的
-			game.label_smile.setIcon(new ImageIcon(ClearMineUI.class.getResource("/image/cry.png")));
-			index = JOptionPane.showConfirmDialog(game, "对不起，您被炸身亡...\n是否再来一局???", "游戏结束", JOptionPane.YES_NO_OPTION);
-		} else {
-			index = JOptionPane.showConfirmDialog(game, "恭喜您，赢了...\n是否再来一局???", "游戏结束", JOptionPane.YES_NO_OPTION);
+			clearMineUI.label_2.setIcon(new ImageIcon(ClearMineUI.class.getResource("/images/cry.png")));
+			index = JOptionPane.showConfirmDialog(clearMineUI, "对不起，您已经被炸死了...\n是否再来一局???", "游戏结束", JOptionPane.YES_NO_OPTION);
+		} else { // 说明是正常结束
+			index = JOptionPane.showConfirmDialog(clearMineUI, "恭喜您，赢了...\n是否再来一局???", "游戏结束", JOptionPane.YES_NO_OPTION);
 		}
 		
-		if (index == 1) { // 说明是否
+		if (index == 1) { // 说明用户选择的是否
 			System.exit(0);
-		} else { // 如果再来一局
-			game.again();
-		}
-	}
-	
-	/**
-	 * 判断游戏是否结束
-	 * @return
-	 */
-	private boolean isGameOver() {
-		int count = 0;
-		for (int[] arr : game.mineMap) {
-			for (int num : arr) {
-				// 若干已经插旗，并且旗子下面是雷，则计数
-				if ((num & 0b110) == 0b100 && (num & 0b1) == 1) {
-					count ++;
-				} 
-			}
 		}
 		
-		if (count == game.clearMine.getMineCount()) { // 说明所有雷都已经找出来了
-			return true;
-		}
-		
-		return false;
+		// 重新开始游戏
+		clearMineUI.again();
 	}
 }
