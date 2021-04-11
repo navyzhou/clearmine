@@ -355,6 +355,10 @@ public class MyMouseListener extends MouseAdapter{
 	 * @param flag
 	 */
 	private void gameOver(int flag) {
+		// 游戏结束，定时器停止
+		if (clearMineUI.timer != null) {
+			clearMineUI.timer.cancel();
+		}
 		int index = 0;
 		if (flag == 1) { // 说明是炸死的
 			PlayMusicUtil.playOver();
