@@ -293,7 +293,11 @@ public class ClearMineUI extends JFrame {
 						} else if ((value & 0b1) == 0b1){ // 如果是雷有没有插旗
 							g.drawImage(bomb0Imge, j * size, i * size, size, size, this);
 						} else {
-							g.drawImage(images[0], j * size, i * size, size, size, this);
+							if ((value & 0b110) == 0b10) {
+								g.drawImage(images[value >>> 3], j * size, i * size, size, size, this);
+							} else {
+								g.drawImage(initImge, j * size, i * size, size, size, this);
+							}
 						}
 					}
 				}
@@ -309,7 +313,7 @@ public class ClearMineUI extends JFrame {
 						} else if ((value & 0b110) == 0b110) { // 说明是问号
 							g.drawImage(questionImge, j * size, i * size, size, size, this);
 						} else { // 已经打开，并且没有踩到雷
-							g.drawImage(images[0], j * size, i * size, size, size, this);
+							g.drawImage(images[value >>> 3], j * size, i * size, size, size, this);
 						}
 					}
 				}
