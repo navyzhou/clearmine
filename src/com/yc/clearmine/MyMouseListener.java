@@ -330,7 +330,8 @@ public class MyMouseListener extends MouseAdapter{
 			}
 		}
 		clearMineUI.mineCount = clearMineUI.clearMineCount - count;
-		clearMineUI.label_1.setText(" 0" + clearMineUI.mineCount + " ");
+		String str = clearMineUI.mineCount < 10 ? "0" + clearMineUI.mineCount : clearMineUI.mineCount + "";
+		clearMineUI.label_1.setText(" 0" + str + " ");
 	}
 	
 	/**
