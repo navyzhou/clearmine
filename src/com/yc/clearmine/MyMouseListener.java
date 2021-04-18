@@ -63,7 +63,7 @@ public class MyMouseListener extends MouseAdapter{
 				openRound(x, y); // 打开这个位置的周围
 			}
 		} else { // 说明是单机
-			if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) { // 说明是左击
+			if (e.getModifiers() == InputEvent.BUTTON1_MASK) { // 说明是左击
 				// 如果这个位置已经打开，则不管
 				if ((value & 0b110) == 0b010) { // 说明已经打开
 					return;
@@ -78,7 +78,7 @@ public class MyMouseListener extends MouseAdapter{
 					// clearMineUI.mineMap[x][y] += 0b10;
 					openWhiteOption(x, y);
 				}
-			} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) { // 说明是右击
+			} else if (e.getModifiers() == InputEvent.BUTTON3_MASK) { // 说明是右击
 				// 如果已经打开，则不能右击
 				if ((value & 0b110) == 0b010) {
 					return;
@@ -233,7 +233,7 @@ public class MyMouseListener extends MouseAdapter{
 		int state = clearMineUI.mineMap[x][y];
 		
 		// 有雷                                                                     插旗                                                                      已经打开
-		if ((state & 0b1) == 1 || (state & 0b110) == 0b100 || (state & 0b110) == 0b010) {
+		if ((state & 0b1) == 1 || (state & 0b110) == 0b100 || (state & 0b110) == 0b010 || (state & 0b110) == 0b110) {
 			return;
 		}
 		
@@ -270,7 +270,7 @@ public class MyMouseListener extends MouseAdapter{
 		int state = clearMineUI.mineMap[x][y]; // 获取用户点击的这个位置的值
 		
 		// 如果这个地方是雷或者已经插旗或者已经打开，则不往下走
-		if ((state & 0b1) == 1 || (state & 0b110) == 0b100 || (state & 0b110) == 0b010) {
+		if ((state & 0b1) == 1 || (state & 0b110) == 0b100 || (state & 0b110) == 0b010 || (state & 0b110) == 0b110) {
 			return;
 		}
 		

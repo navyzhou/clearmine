@@ -173,7 +173,7 @@ public class ClearMineUI extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				again(); // 重新开始游戏的方法
 			}
-			
+
 		});
 		panel.add(label_2);
 
@@ -209,7 +209,7 @@ public class ClearMineUI extends JFrame {
 		mineCount = clearMineCount;
 		time = 0; // 重新开始计数
 		start = true; // 重置游戏开始标识
-		
+
 		if (timer != null) {
 			timer.cancel();
 		}
@@ -225,7 +225,7 @@ public class ClearMineUI extends JFrame {
 		label_2.setBounds((col * size - 16) / 2, 17, 26, 26);
 		label_3.setBounds(col * size - 96, 10, 85, 40);
 	}
-	
+
 	/**
 	 * 重新开始游戏的方法
 	 */
@@ -236,19 +236,19 @@ public class ClearMineUI extends JFrame {
 		mineCount = clearMineCount;
 		time = 0; // 重新开始计数
 		start = true; // 重置游戏开始标识
-		
+
 		if (timer != null) {
 			timer.cancel();
 		}
-		
+
 		label_1.setText(" 0" + clearMineCount + " "); // 重置剩余雷数的显示
 		label_3.setText(" 00:00 "); // 重新开始计时
 		isBomb = false; // 将是否炸了重置
 		label_2.setIcon(new ImageIcon(ClearMineUI.class.getResource("/images/smile.png")));
-		
+
 		repaint(); // 重绘地图
 	}
-	
+
 	/**
 	 * 定时器
 	 */
@@ -270,7 +270,7 @@ public class ClearMineUI extends JFrame {
 				}
 				label_3.setText(str);
 			}
-			
+
 		}, 0, 1000);
 	}
 
@@ -293,11 +293,7 @@ public class ClearMineUI extends JFrame {
 						} else if ((value & 0b1) == 0b1){ // 如果是雷有没有插旗
 							g.drawImage(bomb0Imge, j * size, i * size, size, size, this);
 						} else {
-							if ((value >>> 3) == 0) { // 说明是空白
-								g.drawImage(images[0], j * size, i * size, size, size, this);
-							} else { // 说明是数字
-								g.drawImage(images[value >>> 3], j * size, i * size, size, size, this);
-							}
+							g.drawImage(images[0], j * size, i * size, size, size, this);
 						}
 					}
 				}
@@ -313,11 +309,7 @@ public class ClearMineUI extends JFrame {
 						} else if ((value & 0b110) == 0b110) { // 说明是问号
 							g.drawImage(questionImge, j * size, i * size, size, size, this);
 						} else { // 已经打开，并且没有踩到雷
-							if ((value >>> 3) == 0) { // 说明是空白
-								g.drawImage(images[0], j * size, i * size, size, size, this);
-							} else { // 说明是数字
-								g.drawImage(images[value >>> 3], j * size, i * size, size, size, this);
-							}
+							g.drawImage(images[0], j * size, i * size, size, size, this);
 						}
 					}
 				}
