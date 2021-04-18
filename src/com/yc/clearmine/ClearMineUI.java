@@ -312,7 +312,8 @@ public class ClearMineUI extends JFrame {
 							g.drawImage(redFlagImge, j * size, i * size, size, size, this);
 						} else if ((value & 0b110) == 0b110) { // 说明是问号
 							g.drawImage(questionImge, j * size, i * size, size, size, this);
-						} else { // 已经打开，并且没有踩到雷
+						} else { 
+							// 已经打开，并且没有踩到雷
 							g.drawImage(images[value >>> 3], j * size, i * size, size, size, this);
 						}
 					}
