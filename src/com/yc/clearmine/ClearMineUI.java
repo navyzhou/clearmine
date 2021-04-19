@@ -237,7 +237,6 @@ public class ClearMineUI extends JFrame {
 		mineCount = clearMineCount;
 		time = 0; // 重新开始计数
 		start = true; // 重置游戏开始标识
-		isBomb = false;
 
 		if (timer != null) {
 			timer.cancel();
@@ -286,6 +285,7 @@ public class ClearMineUI extends JFrame {
 
 			int value = 0;
 			if (isBomb) {
+				label_2.setIcon(new ImageIcon(ClearMineUI.class.getResource("/images/cry.png")));
 				for (int i = 0; i < row; i ++) {
 					for (int j = 0; j < col; j ++) {
 						value = mineMap[i][j];
